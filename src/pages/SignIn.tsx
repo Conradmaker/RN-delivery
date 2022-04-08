@@ -87,7 +87,7 @@ export default function SignIn({navigation}: SignInScreenProps) {
 
 const styles = StyleSheet.create({
   container: {paddingHorizontal: 24},
-  lgButtonCol: {},
+  lgButtonCol: {marginTop: 32},
   lgButton: {
     backgroundColor: '#aaa',
     paddingHorizontal: 20,
