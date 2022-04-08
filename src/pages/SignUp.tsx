@@ -1,8 +1,6 @@
-import {NativeStackScreenProps} from '@react-navigation/native-stack';
-import React from 'react';
-import {useRef} from 'react';
-import {useState} from 'react';
+import React, {useRef, useState} from 'react';
 import {
+  ActivityIndicator,
   Alert,
   StyleSheet,
   Text,
@@ -10,11 +8,10 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import {RootStackParamList} from '../../App';
+import axios, {AxiosError} from 'axios';
 import DismissKeyboardView from '../components/DismissKeyboardView';
 
-type SignUpScreenProps = NativeStackScreenProps<RootStackParamList, 'SignUp'>;
-export default function SignUp({navigation}: SignUpScreenProps) {
+export default function SignUp() {
   const [email, setEmail] = useState('');
   const [name, setName] = useState('');
   const [password, setPassword] = useState('');
@@ -22,7 +19,9 @@ export default function SignUp({navigation}: SignUpScreenProps) {
   const nameRef = useRef<TextInput | null>(null);
   const passwordRef = useRef<TextInput | null>(null);
 
-  const onSubmit = React.useCallback(() => {
+  const [loading, setLoading] = useState(false);
+
+  const onSubmit = React.useCallback(async () => {
     if (!email || !email.trim()) {
       return Alert.alert('실패', '이메일을 확인해주세요');
     }
@@ -31,6 +30,17 @@ export default function SignUp({navigation}: SignUpScreenProps) {
     }
     if (!password || !password.trim()) {
       return Alert.alert('실패', '비밀번호을 확인해주세요');
+    }
+    try {
+      setLoading(true);
+      await axios.post('http://localhost:3105/user', {email, name, password});
+      return Alert.alert('성공', '성공');
+    } catch (e) {
+      const axiosError = (e as AxiosError).response;
+      console.error(axiosError?.data.message);
+      return Alert.alert('실패', '실패');
+    } finally {
+      setLoading(false);
     }
   }, [email, name, password]);
 
@@ -92,8 +102,12 @@ export default function SignUp({navigation}: SignUpScreenProps) {
           <TouchableOpacity
             style={[styles.lgButton, !notValid ? styles.lgButtonActive : null]}
             onPress={onSubmit}
-            disabled={notValid}>
-            <Text style={styles.lgBtnText}>회원가입</Text>
+            disabled={notValid || loading}>
+            {loading ? (
+              <ActivityIndicator />
+            ) : (
+              <Text style={styles.lgBtnText}>회원가입</Text>
+            )}
           </TouchableOpacity>
         </View>
       </View>
