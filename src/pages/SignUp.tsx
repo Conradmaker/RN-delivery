@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import axios, {AxiosError} from 'axios';
 import DismissKeyboardView from '../components/DismissKeyboardView';
+import Config from 'react-native-config';
 
 export default function SignUp() {
   const [email, setEmail] = useState('');
@@ -33,7 +34,11 @@ export default function SignUp() {
     }
     try {
       setLoading(true);
-      await axios.post('http://localhost:3105/user', {email, name, password});
+      await axios.post(`${Config.API_URL}/user`, {
+        email,
+        name,
+        password,
+      });
       return Alert.alert('성공', '성공');
     } catch (e) {
       const axiosError = (e as AxiosError).response;
