@@ -1,4 +1,5 @@
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
+import axios, {AxiosError} from 'axios';
 import React from 'react';
 import {useRef} from 'react';
 import {useState} from 'react';
@@ -10,7 +11,11 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import Config from 'react-native-config';
 import {RootStackParamList} from '../../App';
+import {useAppDispatch} from '../modules';
+import userSlice from '../modules/user';
+import EncryptedStorage from 'react-native-encrypted-storage';
 
 type SignInScreenProps = NativeStackScreenProps<RootStackParamList, 'SignIn'>;
 export default function SignIn({navigation}: SignInScreenProps) {
@@ -23,14 +28,39 @@ export default function SignIn({navigation}: SignInScreenProps) {
     navigation.navigate('SignUp');
   }, [navigation]);
 
-  const onSubmit = React.useCallback(() => {
+  const [loading, setLoading] = useState(false);
+  const dispatch = useAppDispatch();
+  const onSubmit = React.useCallback(async () => {
     if (!email || !email.trim()) {
       return Alert.alert('실패', '이메일을 확인해주세요');
     }
     if (!password || !password.trim()) {
       return Alert.alert('실패', '비밀번호을 확인해주세요');
     }
-  }, [email, password]);
+    try {
+      setLoading(true);
+      const {data} = await axios.post(`${Config.API_URL}/login`, {
+        email,
+        password,
+      });
+      Alert.alert('성공', '성공');
+      dispatch(
+        userSlice.actions.setUser({
+          email: data.data.email,
+          name: data.data.name,
+          accessToken: data.data.accessToken,
+        }),
+      );
+      await EncryptedStorage.setItem('refreshToken', data.data.refreshToken);
+      console.log(data);
+    } catch (e) {
+      const axiosError = (e as AxiosError).response;
+      console.error(axiosError?.data.message);
+      return Alert.alert('실패', axiosError?.data.message);
+    } finally {
+      setLoading(false);
+    }
+  }, [email, password, dispatch]);
 
   const notValid = !email || !password;
   return (

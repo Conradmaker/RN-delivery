@@ -11,8 +11,11 @@ import {
 import axios, {AxiosError} from 'axios';
 import DismissKeyboardView from '../components/DismissKeyboardView';
 import Config from 'react-native-config';
+import {RootStackParamList} from '../../App';
+import {NativeStackScreenProps} from '@react-navigation/native-stack';
 
-export default function SignUp() {
+type SignUpScreenProps = NativeStackScreenProps<RootStackParamList, 'SignUp'>;
+export default function SignUp({navigation}: SignUpScreenProps) {
   const [email, setEmail] = useState('');
   const [name, setName] = useState('');
   const [password, setPassword] = useState('');
@@ -34,20 +37,22 @@ export default function SignUp() {
     }
     try {
       setLoading(true);
+      console.log(Config.API_URL);
       await axios.post(`${Config.API_URL}/user`, {
         email,
         name,
         password,
       });
-      return Alert.alert('성공', '성공');
+      Alert.alert('성공', '성공');
+      navigation.navigate('SignIn');
     } catch (e) {
       const axiosError = (e as AxiosError).response;
       console.error(axiosError?.data.message);
-      return Alert.alert('실패', '실패');
+      return Alert.alert('실패', axiosError?.data.message);
     } finally {
       setLoading(false);
     }
-  }, [email, name, password]);
+  }, [email, name, password, navigation]);
 
   const notValid = !email || !password || !name;
   return (
