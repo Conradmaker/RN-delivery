@@ -3,7 +3,7 @@ import {NavigationContainer} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import Orders from './src/pages/Orders';
-import Delievery from './src/pages/Delievery';
+import Delivery from './src/pages/Delievery';
 import Settings from './src/pages/Settings';
 import SignIn from './src/pages/SignIn';
 import SignUp from './src/pages/SignUp';
@@ -78,6 +78,38 @@ export default function AppInner() {
     };
     getTokenAndRefresh();
   }, [dispatch]);
+  useEffect(() => {
+    // axios.interceptors.request.use(); <- 이걸로 토큰 찾아서 넣을 수 있음
+    axios.interceptors.response.use(
+      res => {
+        return res;
+      },
+      async error => {
+        const {
+          config,
+          response: {status},
+        } = error;
+        if (status === 419) {
+          const originalReq = config;
+          const token = await EncryptedStorage.getItem('refreshToken');
+          const {data} = await axios.post(
+            `${Config.API_URL}/refreshToken`,
+            {},
+            {
+              headers: {
+                authorization: `Bearer ${token}`,
+              },
+            },
+          );
+          dispatch(userSlice.actions.setAccessToken(data.data.accessToken));
+          originalReq.headers.authorization = `Bearer ${data.data.accessToken}`;
+          return axios(originalReq);
+        }
+        return Promise.reject(error);
+      },
+    );
+  }, []);
+
   return (
     <NavigationContainer>
       {isLoggedIn ? (
@@ -88,8 +120,8 @@ export default function AppInner() {
             options={{title: '오더 목록'}}
           />
           <Tab.Screen
-            name="Delievery"
-            component={Delievery}
+            name="Delivery"
+            component={Delivery}
             options={{headerShown: false}}
           />
           <Tab.Screen

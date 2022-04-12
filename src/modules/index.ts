@@ -1,8 +1,12 @@
 import {combineReducers, configureStore} from '@reduxjs/toolkit';
 import {useDispatch, TypedUseSelectorHook, useSelector} from 'react-redux';
+import orderSlice from './order';
 import userSlice from './user';
 
-const rootReducer = combineReducers({user: userSlice.reducer});
+const rootReducer = combineReducers({
+  user: userSlice.reducer,
+  order: orderSlice.reducer,
+});
 
 const store = configureStore({reducer: rootReducer});
 

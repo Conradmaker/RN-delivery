@@ -6,9 +6,12 @@ import userSlice from '../modules/user';
 import {useSelector} from 'react-redux';
 import EncryptedStorage from 'react-native-encrypted-storage';
 import {RootState, useAppDispatch} from '../modules';
+import {useEffect} from 'react';
 
 function Settings() {
   const accessToken = useSelector((state: RootState) => state.user.accessToken);
+  const money = useSelector((state: RootState) => state.user.money);
+  const name = useSelector((state: RootState) => state.user.name);
   const dispatch = useAppDispatch();
   const onLogout = useCallback(async () => {
     try {
@@ -17,7 +20,7 @@ function Settings() {
         {},
         {
           headers: {
-            Authorization: `Bearer ${accessToken}`,
+            authorization: `Bearer ${accessToken}`,
           },
         },
       );
@@ -36,8 +39,27 @@ function Settings() {
     }
   }, [accessToken, dispatch]);
 
+  useEffect(() => {
+    async function getMoney() {
+      const {data} = await axios.get(`${Config.API_URL}/showmethemoney`, {
+        headers: {authorization: `Bearer ${accessToken}`},
+      });
+      console.log(data);
+      dispatch(userSlice.actions.setMoney(data.data));
+    }
+    getMoney();
+  }, [dispatch, accessToken]);
   return (
     <View>
+      <View style={styles.money}>
+        <Text style={styles.moneyText}>
+          {name}님의 수익금{' '}
+          <Text style={styles.bold}>
+            {money.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+          </Text>
+          원
+        </Text>
+      </View>
       <View style={styles.buttonZone}>
         <Pressable
           style={[styles.loginButton, styles.loginButtonActive]}
@@ -50,6 +72,13 @@ function Settings() {
 }
 
 const styles = StyleSheet.create({
+  money: {
+    padding: 20,
+  },
+  bold: {fontWeight: 'bold'},
+  moneyText: {
+    fontSize: 16,
+  },
   buttonZone: {
     alignItems: 'center',
     paddingTop: 20,

@@ -4,11 +4,11 @@ export interface Order {
   orderId: string;
   start: {
     latitude: number;
-    longtitude: number;
+    longitude: number;
   };
   end: {
     latitude: number;
-    longtitude: number;
+    longitude: number;
   };
   price: number;
 }
@@ -27,7 +27,7 @@ const orderSlice = createSlice({
     addOrder(state, action: PayloadAction<Order>) {
       state.orders.push(action.payload);
     },
-    acceotOrder(state, action: PayloadAction<string>) {
+    acceptOrder(state, action: PayloadAction<string>) {
       const idx = state.orders.findIndex(v => v.orderId === action.payload);
       if (idx > -1) {
         state.deliveries.push(state.orders[idx]);
