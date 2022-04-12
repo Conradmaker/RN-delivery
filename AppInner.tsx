@@ -129,7 +129,7 @@ export default function AppInner() {
           <Tab.Screen
             name="Settings"
             component={Settings}
-            options={{title: '내정보'}}
+            options={{title: '내정보', unmountOnBlur: true}}
           />
         </Tab.Navigator>
       ) : (

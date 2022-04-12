@@ -32,8 +32,8 @@ function Ing({navigation}: IngScreenProps) {
       {
         // enableHighAccuracy: true,
         enableHighAccuracy: false,
-        timeout: 150000,
-        maximumAge: 0,
+        // timeout: 150000,
+        // maximumAge: 0,
       },
     );
   }, []);
