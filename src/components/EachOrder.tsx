@@ -25,21 +25,18 @@ type EachOrderProps = {
 export default function EachOrder({item}: EachOrderProps) {
   const navigation = useNavigation<NavigationProp<LoggedInParamList>>();
   const [detail, setDetail] = useState(false);
-  const [loading, setLoading] = useState(false);
   const accessToken = useAppSelector(state => state.user.accessToken);
   const dispatch = useAppDispatch();
   const toggleDetail = useCallback(() => setDetail(prev => !prev), []);
   const {end, start} = item;
   const onAccept = useCallback(async () => {
     try {
-      setLoading(true);
       await axios.post(
         `${Config.API_URL}/accept`,
         {orderId: item.orderId},
         {headers: {authorization: `Bearer ${accessToken}`}},
       );
       dispatch(orderSlice.actions.acceptOrder(item.orderId));
-      setLoading(false);
       navigation.navigate('Delivery'); //다른페이지 이동하는 경우 finally쓰지말자
     } catch (error) {
       let errorResponse = (error as AxiosError).response;
@@ -48,7 +45,6 @@ export default function EachOrder({item}: EachOrderProps) {
         Alert.alert('알림', errorResponse.data.message);
         dispatch(orderSlice.actions.rejectOrder(item.orderId));
       }
-      setLoading(false);
     }
   }, [dispatch, item, accessToken, navigation]);
   const onReject = useCallback(() => {
@@ -114,16 +110,10 @@ export default function EachOrder({item}: EachOrderProps) {
             </View>
           </View>
           <View style={styles.buttonWrapper}>
-            <Pressable
-              disabled={loading}
-              onPress={onAccept}
-              style={styles.acceptButton}>
+            <Pressable onPress={onAccept} style={styles.acceptButton}>
               <Text style={styles.buttonText}>수락</Text>
             </Pressable>
-            <Pressable
-              disabled={loading}
-              onPress={onReject}
-              style={styles.rejectButton}>
+            <Pressable onPress={onReject} style={styles.rejectButton}>
               <Text style={styles.buttonText}>거절</Text>
             </Pressable>
           </View>

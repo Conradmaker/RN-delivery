@@ -16,6 +16,7 @@ import userSlice from './src/modules/user';
 import {Alert} from 'react-native';
 import EncryptedStorage from 'react-native-encrypted-storage';
 import orderSlice from './src/modules/order';
+import usePermissions from './src/hooks/usePermission';
 
 export default function AppInner() {
   const Stack = createNativeStackNavigator();
@@ -23,6 +24,7 @@ export default function AppInner() {
   const [socket, disconnect] = useSocket();
   const [isLoggedIn] = useAppSelector(state => state.user.email);
   const dispatch = useAppDispatch();
+  usePermissions();
 
   useEffect(() => {
     const callback = (data: any) => {
@@ -108,7 +110,7 @@ export default function AppInner() {
         return Promise.reject(error);
       },
     );
-  }, []);
+  }, [dispatch]);
 
   return (
     <NavigationContainer>
@@ -122,7 +124,7 @@ export default function AppInner() {
           <Tab.Screen
             name="Delivery"
             component={Delivery}
-            options={{headerShown: false}}
+            options={{headerShown: false, unmountOnBlur: true}}
           />
           <Tab.Screen
             name="Settings"
