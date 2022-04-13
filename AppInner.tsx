@@ -17,6 +17,9 @@ import {Alert} from 'react-native';
 import EncryptedStorage from 'react-native-encrypted-storage';
 import orderSlice from './src/modules/order';
 import usePermissions from './src/hooks/usePermission';
+import SplashScreen from 'react-native-splash-screen';
+import FontAwesome5Icon from 'react-native-vector-icons/FontAwesome5';
+import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome';
 
 export default function AppInner() {
   const Stack = createNativeStackNavigator();
@@ -53,6 +56,7 @@ export default function AppInner() {
       try {
         const token = await EncryptedStorage.getItem('refreshToken');
         if (!token) {
+          SplashScreen.hide();
           return;
         }
         const response = await axios.post(
@@ -76,6 +80,8 @@ export default function AppInner() {
         if ((error as AxiosError).response?.data.code === 'expired') {
           Alert.alert('알림', '다시 로그인 해주세요.');
         }
+      } finally {
+        SplashScreen.hide();
       }
     };
     getTokenAndRefresh();
@@ -119,17 +125,35 @@ export default function AppInner() {
           <Tab.Screen
             name="Orders"
             component={Orders}
-            options={{title: '오더 목록'}}
+            options={{
+              title: '오더 목록',
+              tabBarIcon: ({color}) => (
+                <FontAwesome5Icon color={color} name="list" size={16} />
+              ),
+            }}
           />
           <Tab.Screen
             name="Delivery"
             component={Delivery}
-            options={{headerShown: false, unmountOnBlur: true}}
+            options={{
+              title: '지도',
+              headerShown: false,
+              unmountOnBlur: true,
+              tabBarIcon: ({color}) => (
+                <FontAwesome5Icon color={color} name="map" size={16} />
+              ),
+            }}
           />
           <Tab.Screen
             name="Settings"
             component={Settings}
-            options={{title: '내정보', unmountOnBlur: true}}
+            options={{
+              title: '내정보',
+              unmountOnBlur: true,
+              tabBarIcon: ({color}) => (
+                <FontAwesomeIcon color={color} name="gear" size={16} />
+              ),
+            }}
           />
         </Tab.Navigator>
       ) : (
