@@ -61,7 +61,7 @@ function Complete() {
     return ImageCropPicker.openCamera({
       includeBase64: true,
       includeExif: true,
-      // saveToPhotos: true,
+      saveToPhotos: true,
       // cropping:true
     })
       .then(onResponse)
