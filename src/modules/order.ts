@@ -11,14 +11,19 @@ export interface Order {
     longitude: number;
   };
   price: number;
+  image?: string;
+  completedAt: string;
+  rider?: string;
 }
 type OrderState = {
   orders: Order[];
   deliveries: Order[];
+  completes: Order[];
 };
 const initialState: OrderState = {
   orders: [],
   deliveries: [],
+  completes: [],
 };
 const orderSlice = createSlice({
   name: 'order',
@@ -45,6 +50,9 @@ const orderSlice = createSlice({
       if (delivery > -1) {
         state.deliveries.splice(delivery, 1);
       }
+    },
+    setCompletes(state, action: PayloadAction<Order[]>) {
+      state.completes = action.payload;
     },
   },
   extraReducers: builder => {},
